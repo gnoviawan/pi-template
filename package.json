@@ -1,0 +1,17 @@
+{
+  "name": "pi-template-monorepo",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.12.1",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "check": "biome check .",
+    "format": "biome format --write .",
+    "manifest:sync": "node scripts/sync-installer-manifest.mjs",
+    "publish:npm": "node scripts/publish-npm.mjs",
+    "publish:npm:dry": "node scripts/publish-npm.mjs --dry-run"
+  }
+}

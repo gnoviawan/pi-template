@@ -1,0 +1,20 @@
+{
+  "name": "@gnoviawan/pi-template",
+  "version": "0.1.3",
+  "type": "module",
+  "private": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "bin": {
+    "pi-template": "src/cli.js"
+  },
+  "files": [
+    "src",
+    "manifest.json",
+    "README.md"
+  ],
+  "dependencies": {
+    "@inquirer/prompts": "^7.8.4"
+  }
+}

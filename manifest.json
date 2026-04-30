@@ -1,0 +1,217 @@
+{
+  "version": 1,
+  "packages": [
+    {
+      "id": "auto-session-name",
+      "label": "Auto Session Name",
+      "description": "Automatically asks the LLM to name new sessions with a concise title.",
+      "category": "Core UX",
+      "enabledByDefault": true,
+      "tags": [
+        "session",
+        "ux",
+        "automation"
+      ],
+      "source": {
+        "mode": "workspace",
+        "path": "packages/auto-session-name",
+        "npm": "@gnoviawan/pi-auto-session-name"
+      }
+    },
+    {
+      "id": "biome-lsp",
+      "label": "Biome LSP",
+      "description": "Adds Biome lint, format, daemon status, and post-edit checks.",
+      "category": "Code Quality",
+      "tags": [
+        "biome",
+        "lint",
+        "format"
+      ],
+      "source": {
+        "mode": "workspace",
+        "path": "packages/biome-lsp",
+        "npm": "@gnoviawan/pi-biome-lsp"
+      }
+    },
+    {
+      "id": "compact-tool-preview",
+      "label": "Compact Tool Preview",
+      "description": "Overrides built-in tool rendering with compact single-line previews.",
+      "category": "UI",
+      "tags": [
+        "ui",
+        "tools",
+        "rendering"
+      ],
+      "source": {
+        "mode": "workspace",
+        "path": "packages/compact-tool-preview",
+        "npm": "@gnoviawan/pi-compact-tool-preview"
+      }
+    },
+    {
+      "id": "session-delete",
+      "label": "Session Delete",
+      "description": "Adds an interactive command to browse and delete project sessions.",
+      "category": "Session Tools",
+      "tags": [
+        "session",
+        "cleanup",
+        "tui"
+      ],
+      "source": {
+        "mode": "workspace",
+        "path": "packages/session-delete",
+        "npm": "@gnoviawan/pi-session-delete"
+      }
+    },
+    {
+      "id": "session-usage",
+      "label": "Session Usage",
+      "description": "Tracks elapsed usage time, prompt counts, turns, and tool calls.",
+      "category": "Observability",
+      "enabledByDefault": true,
+      "tags": [
+        "usage",
+        "metrics",
+        "session"
+      ],
+      "source": {
+        "mode": "workspace",
+        "path": "packages/session-usage",
+        "npm": "@gnoviawan/pi-session-usage"
+      }
+    },
+    {
+      "id": "setup-providers",
+      "label": "Setup Providers",
+      "description": "Interactive overlay wizard for configuring custom providers and models.",
+      "category": "Providers",
+      "tags": [
+        "provider",
+        "wizard",
+        "models"
+      ],
+      "source": {
+        "mode": "workspace",
+        "path": "packages/setup-providers",
+        "npm": "@gnoviawan/pi-setup-providers"
+      }
+    },
+    {
+      "id": "token-usage",
+      "label": "Token Usage",
+      "description": "Scans project sessions and shows session/project token usage totals.",
+      "category": "Observability",
+      "enabledByDefault": true,
+      "tags": [
+        "tokens",
+        "metrics",
+        "usage"
+      ],
+      "source": {
+        "mode": "workspace",
+        "path": "packages/token-usage",
+        "npm": "@gnoviawan/pi-token-usage"
+      }
+    },
+    {
+      "id": "tokens-per-second",
+      "label": "Tokens Per Second",
+      "description": "Shows rolling token streaming speed in the Pi status bar.",
+      "category": "Observability",
+      "enabledByDefault": true,
+      "tags": [
+        "tokens",
+        "streaming",
+        "status"
+      ],
+      "source": {
+        "mode": "workspace",
+        "path": "packages/tokens-per-second",
+        "npm": "@gnoviawan/pi-tokens-per-second"
+      }
+    },
+    {
+      "id": "pi-mcp-adapter",
+      "label": "Pi MCP Adapter",
+      "description": "Adds MCP adapter support for connecting Pi to MCP servers and tools.",
+      "category": "External",
+      "enabledByDefault": true,
+      "tags": [
+        "external",
+        "mcp",
+        "adapter"
+      ],
+      "source": {
+        "mode": "npm",
+        "name": "pi-mcp-adapter"
+      }
+    },
+    {
+      "id": "pi-subagents",
+      "label": "Pi Subagents",
+      "description": "Adds delegated subagent workflows, chains, and parallel execution helpers.",
+      "category": "External",
+      "enabledByDefault": true,
+      "tags": [
+        "external",
+        "subagents",
+        "orchestration"
+      ],
+      "source": {
+        "mode": "npm",
+        "name": "pi-subagents"
+      }
+    },
+    {
+      "id": "pi-gitnexus",
+      "label": "Pi GitNexus",
+      "description": "Adds GitNexus graph-powered code exploration, impact analysis, and refactoring tools.",
+      "category": "External",
+      "enabledByDefault": true,
+      "tags": [
+        "external",
+        "gitnexus",
+        "codegraph"
+      ],
+      "source": {
+        "mode": "npm",
+        "name": "pi-gitnexus"
+      }
+    },
+    {
+      "id": "remembra-theme",
+      "label": "Remembra Theme",
+      "description": "Provides the Remembra Pi theme package.",
+      "category": "External Themes",
+      "enabledByDefault": true,
+      "tags": [
+        "external",
+        "theme",
+        "remembra"
+      ],
+      "source": {
+        "mode": "npm",
+        "name": "@m64/pi-remembra-theme"
+      }
+    },
+    {
+      "id": "pi-vcc",
+      "label": "Pi VCC",
+      "description": "Adds VCC recall and conversation history tooling for Pi sessions.",
+      "category": "External",
+      "enabledByDefault": true,
+      "tags": [
+        "external",
+        "history",
+        "vcc"
+      ],
+      "source": {
+        "mode": "npm",
+        "name": "@sting8k/pi-vcc"
+      }
+    }
+  ]
+}
