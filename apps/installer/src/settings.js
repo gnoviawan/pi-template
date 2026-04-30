@@ -1,12 +1,17 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { homedir } from "node:os";
 import path from "node:path";
 
-export function getSettingsPath(targetProjectDir) {
-  return path.join(targetProjectDir, ".pi", "settings.json");
+export function getSettingsPath(options = {}) {
+  if (options.global) {
+    return path.join(homedir(), ".pi", "agent", "settings.json");
+  }
+
+  return path.join(options.cwd, ".pi", "settings.json");
 }
 
-export function readSettings(targetProjectDir) {
-  const settingsPath = getSettingsPath(targetProjectDir);
+export function readSettings(options = {}) {
+  const settingsPath = getSettingsPath(options);
   if (!existsSync(settingsPath)) {
     return {};
   }
@@ -36,8 +41,8 @@ export function mergePackageSources(settings, packageSources) {
   };
 }
 
-export function writeSettings(targetProjectDir, settings) {
-  const settingsPath = getSettingsPath(targetProjectDir);
+export function writeSettings(settings, options = {}) {
+  const settingsPath = getSettingsPath(options);
   mkdirSync(path.dirname(settingsPath), { recursive: true });
   writeFileSync(settingsPath, `${JSON.stringify(settings, null, 2)}\n`);
   return settingsPath;

@@ -16,6 +16,7 @@ function parseArgs(argv) {
     dev: false,
     install: false,
     writeOnly: false,
+    global: true,
     yes: false,
     selectAll: false,
   };
@@ -27,6 +28,8 @@ function parseArgs(argv) {
     else if (token === "--dev") args.dev = true;
     else if (token === "--install") args.install = true;
     else if (token === "--write-only") args.writeOnly = true;
+    else if (token === "--global") args.global = true;
+    else if (token === "--local") args.global = false;
     else if (token === "--yes") args.yes = true;
     else if (token === "--select-all") args.selectAll = true;
     else if (token === "--help" || token === "-h") {
@@ -41,7 +44,7 @@ function parseArgs(argv) {
 }
 
 function printHelp() {
-  console.log(`@gnoviawan/pi-template\n\nUsage:\n  node apps/installer/src/cli.js [options]\n\nOptions:\n  --cwd <path>       Target project directory\n  --manifest <path>  Override manifest path\n  --dev              Resolve workspace packages to local paths\n  --install          Run pi install -l for each resolved source after writing config\n  --write-only       Only update .pi/settings.json\n  --select-all       Select all visible packages without prompting\n  --yes              Skip confirmation prompt\n  -h, --help         Show this help\n`);
+  console.log(`@gnoviawan/pi-template\n\nUsage:\n  node apps/installer/src/cli.js [options]\n\nOptions:\n  --cwd <path>       Target project directory\n  --manifest <path>  Override manifest path\n  --dev              Resolve workspace packages to local paths\n  --install          Run pi install after writing config\n  --write-only       Only update settings.json\n  --global           Write to ~/.pi/agent/settings.json (default)\n  --local            Write to <cwd>/.pi/settings.json instead of global settings\n  --select-all       Select all visible packages without prompting\n  --yes              Skip confirmation prompt\n  -h, --help         Show this help\n`);
 }
 
 function findRepoRoot() {
@@ -55,9 +58,14 @@ function ensureTargetDir(targetDir) {
   }
 }
 
-function maybeRunPiInstall(targetProjectDir, packageSources) {
+function maybeRunPiInstall(targetProjectDir, packageSources, options = {}) {
   for (const source of packageSources) {
-    const result = spawnSync("pi", ["install", source, "-l"], {
+    const installArgs = ["install", source];
+    if (!options.global) {
+      installArgs.push("-l");
+    }
+
+    const result = spawnSync("pi", installArgs, {
       cwd: targetProjectDir,
       stdio: "inherit",
       shell: process.platform === "win32",
@@ -103,17 +111,18 @@ async function main() {
     }
   }
 
-  const currentSettings = readSettings(args.cwd);
+  const scopeLabel = args.global ? "global" : "project-local";
+  const currentSettings = readSettings({ cwd: args.cwd, global: args.global });
   const nextSettings = mergePackageSources(currentSettings, plan.packageSources);
-  const settingsPath = writeSettings(args.cwd, nextSettings);
+  const settingsPath = writeSettings(nextSettings, { cwd: args.cwd, global: args.global });
 
-  console.log(`Updated ${settingsPath}`);
+  console.log(`Updated ${scopeLabel} settings: ${settingsPath}`);
   for (const source of plan.packageSources) {
     console.log(`  + ${source}`);
   }
 
   if (args.install && !args.writeOnly) {
-    maybeRunPiInstall(args.cwd, plan.packageSources);
+    maybeRunPiInstall(args.cwd, plan.packageSources, { global: args.global });
   }
 }
 

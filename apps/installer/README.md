@@ -1,23 +1,38 @@
 # @gnoviawan/pi-template
 
-Installer CLI for selecting custom Pi extensions from the monorepo manifest.
+Curated Pi extension installer.
 
-## Usage
+## Install
+
+Default install target is global Pi settings:
 
 ```bash
 npx @gnoviawan/pi-template
 ```
 
-## Local dev
+Project-local install:
 
 ```bash
-node src/cli.js --dev --cwd /path/to/project
+npx @gnoviawan/pi-template --local
 ```
 
-The published package includes its own bundled `manifest.json`, so `npx @gnoviawan/pi-template` can run outside the monorepo checkout.
+## Included extensions
 
-## Publish
+Custom packages:
+- `@gnoviawan/pi-auto-session-name`
+- `@gnoviawan/pi-biome-lsp`
+- `@gnoviawan/pi-compact-tool-preview`
+- `@gnoviawan/pi-setup-providers`
+- `@gnoviawan/pi-session-delete`
+- `@gnoviawan/pi-session-usage`
+- `@gnoviawan/pi-token-usage`
+- `@gnoviawan/pi-tokens-per-second`
 
-```bash
-npm publish --access public
-```
+External packages:
+- `pi-mcp-adapter`
+- `pi-subagents`
+- `pi-markdown-preview`
+- `pi-web-access`
+- `pi-gitnexus`
+- `@m64/pi-remembra-theme`
+- `@sting8k/pi-vcc`
