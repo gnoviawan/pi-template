@@ -587,8 +587,17 @@ export default function (pi: ExtensionAPI) {
 	// -------------------------------------------------------------------------
 
 	pi.on("session_start", async (_event, ctx) => {
+		let active = true;
+
 		const update = () => {
-			ctx.ui.setStatus("biome", daemon?.ready ? "biome ✓" : undefined);
+			if (!active) return;
+			try {
+				ctx.ui.setStatus("biome", daemon?.ready ? "biome ✓" : undefined);
+			} catch {
+				// Context is stale after session replacement — stop polling
+				active = false;
+				clearInterval(interval);
+			}
 		};
 
 		// Initial + periodic update
@@ -596,8 +605,10 @@ export default function (pi: ExtensionAPI) {
 		const interval = setInterval(update, 10_000);
 
 		// Cleanup on shutdown
-		pi.on("session_shutdown", () => {
+		const onShutdown = () => {
+			active = false;
 			clearInterval(interval);
-		});
+		};
+		pi.on("session_shutdown", onShutdown);
 	});
 }
