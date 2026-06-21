@@ -133,7 +133,16 @@ class BiomeDaemon {
 		// Give it a moment to initialize, then verify with a health check.
 		// Uses the native binary directly (no npx.cmd -> no EINVAL).
 		await new Promise((r) => setTimeout(r, 1500));
+
+		// Guard: if lsp-proxy already exited during the wait, do NOT mark ready.
+		// Otherwise runCommand() would add --use-server against a dead daemon.
+		const proxyAlive = () =>
+			this.proc != null && this.proc.exitCode === null && !this.proc.killed;
+
 		try {
+			if (!proxyAlive()) {
+				throw new Error("Biome lsp-proxy exited before readiness check");
+			}
 			const version = spawn(bin, ["--version"], {
 				cwd,
 				stdio: "pipe",
@@ -146,10 +155,11 @@ class BiomeDaemon {
 				);
 				version.on("error", rej);
 			});
-			this._ready = true;
+			this._ready = proxyAlive();
 		} catch {
-			// Daemon may still work even if version check fails
-			this._ready = true;
+			// Daemon may still work even if the version check fails, but only if the
+			// proxy is actually still alive.
+			this._ready = proxyAlive();
 		}
 	}
 
