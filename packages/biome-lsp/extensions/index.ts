@@ -30,6 +30,22 @@ import {
 	truncateHead,
 } from "@mariozechner/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
+import {
+	getBiomeSpawnEnv,
+	resolveBiomeBinary,
+} from "./biome-binary-resolver.ts";
+
+// ---------------------------------------------------------------------------
+// Resolve the native Biome binary (NOT npx.cmd)
+// ---------------------------------------------------------------------------
+// Node.js >= 18.20 / 20.12 / 22+ blocks spawning .cmd/.bat without shell:true
+// (CVE-2024-27980), throwing `spawn EINVAL`. So we resolve and spawn the real
+// native executable shipped by the platform-specific @biomejs/cli-* package.
+let biomeBinCache: string | null = null;
+function getBiomeBin(): string {
+	if (!biomeBinCache) biomeBinCache = resolveBiomeBinary();
+	return biomeBinCache;
+}
 
 // ---------------------------------------------------------------------------
 // File extensions Biome supports
@@ -74,13 +90,14 @@ class BiomeDaemon {
 	async start(cwd: string): Promise<void> {
 		if (this.proc) return;
 
-		const cmd = process.platform === "win32" ? "npx.cmd" : "npx";
-		const args = ["@biomejs/biome", "lsp-proxy"];
+		// Resolve the native binary up front. If it is missing we surface a clear
+		// error instead of a cryptic spawn EINVAL.
+		const bin = getBiomeBin();
 
-		this.proc = spawn(cmd, args, {
+		this.proc = spawn(bin, ["lsp-proxy"], {
 			cwd,
 			stdio: ["pipe", "pipe", "pipe"],
-			env: { ...process.env },
+			env: getBiomeSpawnEnv(),
 			windowsHide: true,
 			detached: false,
 		});
@@ -113,15 +130,23 @@ class BiomeDaemon {
 			});
 		}
 
-		// Give it a moment to initialize, then verify with a health check
+		// Give it a moment to initialize, then verify with a health check.
+		// Uses the native binary directly (no npx.cmd -> no EINVAL).
 		await new Promise((r) => setTimeout(r, 1500));
 
-		// Verify biome is available
+		// Guard: if lsp-proxy already exited during the wait, do NOT mark ready.
+		// Otherwise runCommand() would add --use-server against a dead daemon.
+		const proxyAlive = () =>
+			this.proc != null && this.proc.exitCode === null && !this.proc.killed;
+
 		try {
-			const cmd2 = process.platform === "win32" ? "npx.cmd" : "npx";
-			const version = spawn(cmd2, ["@biomejs/biome", "--version"], {
+			if (!proxyAlive()) {
+				throw new Error("Biome lsp-proxy exited before readiness check");
+			}
+			const version = spawn(bin, ["--version"], {
 				cwd,
 				stdio: "pipe",
+				env: getBiomeSpawnEnv(),
 				windowsHide: true,
 			});
 			await new Promise<void>((res, rej) => {
@@ -130,10 +155,11 @@ class BiomeDaemon {
 				);
 				version.on("error", rej);
 			});
-			this._ready = true;
+			this._ready = proxyAlive();
 		} catch {
-			// Daemon may still work even if version check fails
-			this._ready = true;
+			// Daemon may still work even if the version check fails, but only if the
+			// proxy is actually still alive.
+			this._ready = proxyAlive();
 		}
 	}
 
@@ -143,9 +169,9 @@ class BiomeDaemon {
 
 		// Try graceful shutdown via CLI
 		try {
-			const cmd = process.platform === "win32" ? "npx.cmd" : "npx";
-			const stop = spawn(cmd, ["@biomejs/biome", "stop"], {
+			const stop = spawn(getBiomeBin(), ["stop"], {
 				stdio: "pipe",
+				env: getBiomeSpawnEnv(),
 				windowsHide: true,
 			});
 			await new Promise<void>((res) => {
@@ -172,8 +198,7 @@ class BiomeDaemon {
 		options: { write?: boolean } = {},
 	): Promise<{ stdout: string; stderr: string; exitCode: number }> {
 		return new Promise((resolve, reject) => {
-			const cmd = process.platform === "win32" ? "npx.cmd" : "npx";
-			const args = ["@biomejs/biome", command, ...targets];
+			const args = [command, ...targets];
 
 			if (this._ready) {
 				args.push("--use-server");
@@ -183,9 +208,9 @@ class BiomeDaemon {
 				args.push("--write");
 			}
 
-			const proc = spawn(cmd, args, {
+			const proc = spawn(getBiomeBin(), args, {
 				cwd,
-				env: { ...process.env },
+				env: getBiomeSpawnEnv(),
 				stdio: ["pipe", "pipe", "pipe"],
 				windowsHide: true,
 			});
