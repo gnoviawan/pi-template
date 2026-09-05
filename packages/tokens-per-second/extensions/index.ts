@@ -138,9 +138,17 @@ export default function (pi: ExtensionAPI) {
 		const rate = theme.fg("success", `(${finalTps} t/s)`);
 		ctx.ui.setStatus(STATUS_KEY, `${icon} ${summary} ${rate}`);
 
-		// Clear after 15 seconds
+		// Clear after 15 seconds. The captured ctx goes stale if the session is
+		// replaced (new_session / switch / fork / reload) before the timer fires;
+		// touching ctx.ui then throws, and an uncaught throw in a timer callback
+		// crashes the whole pi process.
 		setTimeout(() => {
-			ctx.ui.setStatus(STATUS_KEY, "");
+			try {
+				ctx.ui.setStatus(STATUS_KEY, "");
+			} catch {
+				// stale ctx: the session was replaced in the meantime, and the
+				// replacement owns its own status line
+			}
 		}, 15000);
 	});
 
