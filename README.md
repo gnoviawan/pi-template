@@ -1,3 +1,5 @@
+
+
 # Pi Template Monorepo
 
 Curated Pi extension stack with a simple installer.
@@ -56,8 +58,6 @@ These are also available in the installer manifest:
 
 - `pi-mcp-adapter`
 - `pi-subagents`
-- `pi-markdown-preview`
-- `pi-web-access`
 - `pi-gitnexus`
 - `@m64/pi-remembra-theme`
 - `@sting8k/pi-vcc`
