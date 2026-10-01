@@ -140,7 +140,14 @@ export default function (pi: ExtensionAPI) {
 
 		// Clear after 15 seconds
 		setTimeout(() => {
-			ctx.ui.setStatus(STATUS_KEY, "");
+			try {
+				ctx.ui.setStatus(STATUS_KEY, "");
+			} catch {
+				// ctx is stale after /reload, ctx.newSession(), ctx.fork(), or
+				// ctx.switchSession(). Using it here throws an uncaughtException
+				// that takes down the whole pi process. The status line belongs
+				// to a dead session anyway — safe to skip.
+			}
 		}, 15000);
 	});
 
